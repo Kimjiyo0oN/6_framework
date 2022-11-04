@@ -32,6 +32,11 @@
 	<!-- 화면에 필요한 이미지나 자원들을 인터넷에 접근가능하게 함
 		/webapp/resource 폴더 경로를 웹에서 요청했을 때 접근가능하게 하는 태그  -->
 	<resources mapping="/resources/**" location="/resources/" />
+	
+	
+	
+	<!-- favicon 추가  -->
+	<resources mapping="/favicon.ico" location="/resources/images/favicon.ico" />
 
   <!-- View Resolver 객체(bean) 생성 구문 -->
   <!-- 

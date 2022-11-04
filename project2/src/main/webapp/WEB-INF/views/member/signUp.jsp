@@ -31,7 +31,7 @@
 
                     <button type="button">인증번호 받기</button>
                 </div>
-                <span class="signUp-message">메일을 받을 수 있는 이메일을 입력해주세요.</span>
+                <span class="signUp-message" id="emailMessage">메일을 받을 수 있는 이메일을 입력해주세요.</span>
 
                 <!-- 인증번호 입력 영역 -->
 
@@ -61,7 +61,7 @@
                     <input type="password" name="memberPwConfirm" id="memberPwConfirm" placeholder="비밀번호 확인"
                         maxlength="20" required>
                 </div>
-                <span class="signUp-message error">비밀번호가 일치하지 않습니다.</span>
+                <span class="signUp-message error" id="pwMessage">영어,숫자,특수문자(!,@,#,-,_) 6~20글자 사이로 입력해주세요.</span>
 
 
                 <!-- 닉네임 입력 영역 -->
@@ -74,7 +74,7 @@
                         maxlength="10" required
                         value="${tempMember.memberNickname}">
                 </div>
-                <span class="signUp-message confirm">사용 가능한 닉네임 입니다.</span>
+                <span class="signUp-message" id="nickMessage">한글, 영어, 숫자로만 2~10글자</span>
 
                 <!-- 전화번호 입력 영역 -->
                 <label for="memberTel">
@@ -86,7 +86,7 @@
                         maxlength="11" required
                         value="${tempMember.memberTel}">
                 </div>
-                <span class="signUp-message error">전화번호 형식이 올바르지 않습니다.</span>
+                <span class="signUp-message" id="telMessage">전화번호 형식이 올바르지 않습니다.</span>
 
                 <%-- 주소 문자열 -> 배열로 쪼개기 --%>
                 <c:set var="addr" value="${fn:split(tempMember.memberAddress,',,')}"></c:set>
@@ -148,5 +148,6 @@
             }).open();
         }
     </script>
+    <script src="/resources/js/member/signUp.js"></script>
 </body>
 </html>
