@@ -84,12 +84,63 @@ memberEmail.addEventListener("input",function(){
     //정규표현식을 이용한 유효성 검사
     const regEx =/^[A-Za-z0-9\-\_]{4,}@[가-힣\w\-\_]+(\.\w+){1,3}$/;
     if(regEx.test(memberEmail.value)){ //유효한 경우
-        emailMessage.innerText = "유효한 이메일 형식입니다.";
+
+        /* emailMessage.innerText = "유효한 이메일 형식입니다.";
         emailMessage.classList.add("confirm");
         emailMessage.classList.remove("error");
 
         // 유효성 검사 확인 객체에 현재 상태 저장
-        checkObj.memberEmail = true;
+        checkObj.memberEmail = true; */
+
+        // 이메일이 유효한 형식이라면 중복되는 이메일이 있는 지 검사 
+        // -> AJAX 이용 
+
+        // jQuery를 이용한 ajax 코드
+        // -> $.ajax(JS 객체)
+
+        // $ : JQuery 기호 
+        // $.ajax() : jQuery에서 제공하는 ajax라는 이름의 함수 
+        // JS 객체 : {K:V,K:V,...}
+        // *.ajax() 함수의 매개변수로 전달되는 객체에는 
+        // 반드시 "url"이라는 key가 포함되어야 하며,
+        // 선택적으로 data, type, dataType, success, error, complete, async 등을 
+        // 포함시킬 수 있다.
+
+        $.ajax({
+            url : "/emailDupCheck", // 비동기 통신을 진행 서버 요청 주소 
+            data: {"memberEmail": memberEmail.value}, // JS -> 서버로 전달할 값 (여러개 가능)
+            type : "GET", // 데이터 전달 방식(GET/POST -> 비동기식은 거의 GET 
+            success: (result) => { // 비동식 통식을 성공해서 응답을 받았을 때 
+                // result : 서버로 부터 전달 받은 응답 데이터
+                //            (매개변수 이름은 자유)
+
+                console.log(result);
+                if(result == 0){ //중복 아님
+                    emailMessage.innerText = "사용 가능한 이메일입니다.";
+                    emailMessage.classList.add("confirm");
+                    emailMessage.classList.remove("error");
+
+                    checkObj.memberEmail = true;
+                }else{ //중복임
+                    emailMessage.innerText = "이미 사용중인 이메일 입니다.";
+                    emailMessage.classList.add("error");
+                    emailMessage.classList.remove("confirm");
+
+                    checkObj.memberEmail = false;
+                }
+                // 유효성 검사 확인 객체에 현재 상태 저장
+                
+            },
+            error : () => { // 비동기 통신이 실패했을 때 수행
+                console.log("ajax 통신 실패");
+            },
+            complete : ()=>{ // success, error 수행여부 관계없이 무조건 수행
+                console.log("중복 검사 수행 완료")
+            }
+
+
+        });
+
     }else{
         emailMessage.innerText = "이메일 형식이 유효하지 않습니다.";
         emailMessage.classList.add("error");
@@ -215,10 +266,38 @@ memberNickname.addEventListener("input",function(){
     if(regEx.test(memberNickname.value)){ //유효한 경우
         
         //닉네임 중복검사 코드 추가 예정 
-        nickMessage.innerText = "유효한 닉네임 형식 입니다.";
+        const param = {"memberNickname": memberNickname.value};
+        $.ajax({
+            url:'/nicknameDupCheck',
+            data:param,
+            //type: "GET", //type 미작성시 기본값 GET
+            success : (res) => {
+                // 매개변수 res == 서버 비동기 통신 응답 데이터
+                console.log("res : " + res);
+                if(res == 0){ //중복 아님
+                    nickMessage.innerText = "사용 가능한 닉네임입니다.";
+                    nickMessage.classList.add("confirm");
+                    nickMessage.classList.remove("error");
+
+                    checkObj.nickMessage = true;
+                }else{ //중복임
+                    nickMessage.innerText = "이미 사용중인 닉네임입니다.";
+                    nickMessage.classList.add("error");
+                    nickMessage.classList.remove("confirm");
+
+                    checkObj.nickMessage = false;
+                }
+            },
+            error : () => {
+                console.log("닉네임 중복 검사 실패");
+            },
+            complete : temFn
+
+        });
+        /* nickMessage.innerText = "유효한 닉네임 형식 입니다.";
         nickMessage.classList.add("confirm");
         nickMessage.classList.remove("error");
-        checkObj.memberNickname =true;
+        checkObj.memberNickname =true; */
     }else{
         nickMessage.innerText = "유효한 닉네임 형식 아닙니다.";
         nickMessage.classList.add("error");
@@ -226,6 +305,10 @@ memberNickname.addEventListener("input",function(){
         checkObj.memberNickname =false;
     }
 });
+
+function temFn(){
+    console.log("닉네임 검사 완료");
+}
 
 
 // 전화번호 유효성 검사

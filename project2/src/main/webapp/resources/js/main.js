@@ -63,3 +63,143 @@ function loginValidate(){
 
     return true;
 }
+
+
+//이메일로 회원 정보 조회(AJAX)
+const inputEmail = document.getElementById("inputEmail");
+const selectEmail = document.getElementById("selectEmail");
+
+selectEmail.addEventListener("click",(e) =>{
+    if(inputEmail.value.trim().length == 0){
+        alert("이메일을 입력해주세요");
+        inputEmail.value= "";
+        inputEmail.focus();
+        return;
+    }else{
+        $.ajax({
+            url : "/selectEmail",
+            data : {"email" : inputEmail.value},
+            type : "POST",
+            dataType : "JSON", //응답 데이터의 형식이 JSON이다. -> 자동으로 JS 객체로 반환
+            success : (member) => {
+                console.log(member);
+    
+                //1) JSON 형태의 문자열로 반환된 경우 (JSON -> JS 객체)
+                // 방법 1) JSON.parse(문자열)
+                //console.log(JSON.parse(member));
+    
+                // 방법 2) dataType : "JSON" 추가 
+    
+                //2. Jackson 라이브러리
+                //----------------------------------------
+                if(member== null){
+                    // h4 요소 생성
+                    const h4 = document.createElement("h4");
+    
+                    // 내용 추가
+                    h4.innerText = inputEmail.value + "은/는 존재하지 않습니다.";
+    
+                    
+                    // append(요소) : 마지막 자식으로 추가
+                    // prepend(요소) : 첫 번째 자식으로 추가
+                    // after(요소) : 다음(이후)에 추가
+                    // before(요소) : 이전에 추가
+    
+                    // selectEmail의 다음요소가 존재한다면 삭제
+                    //selectEmail.nextElementSibling(조회 버튼 다음 요소)가 없으면 null
+                    //selectEmail.nextElementSibling.remove()
+                    if(selectEmail.nextElementSibling != null){
+                        selectEmail.nextElementSibling.remove();
+                    }
+    
+                    // selectEmail의 다음 요소로 추가(.after(요소))
+                    selectEmail.after(h4);
+                }else{ // 일치할때 
+                    const ul = document.createElement("ul");
+
+                    const li1 = document.createElement("li");
+                    li1.innerText = "회원번호 : " + member.memberNo;
+                    
+                    const li2 = document.createElement("li");
+                    li2.innerText = "이메일 : " + member.memberEmail;
+
+                    const li3 = document.createElement("li");
+                    li3.innerText = "닉네임 : " + member.memberNickname;
+
+                    const li4 = document.createElement("li");
+                    li4.innerText = "주소 : " + member.memberAddress;
+
+                    const li5 = document.createElement("li");
+                    li5.innerText = "가입일 : " + member.enrollDate;
+
+                    const li6 = document.createElement("li");
+                    li6.innerText = "탈퇴여부 : " + member.memberDeleteFlag;
+
+                    ul.append(li1, li2, li3, li4, li5, li6);
+
+                    
+                    if(selectEmail.nextElementSibling != null){
+                        selectEmail.nextElementSibling.remove();
+                    }
+
+                    selectEmail.after(ul);
+    
+                }
+            },
+            error : () =>{
+                console.log("이메일로 조회하기 실패")
+            }
+    
+        });
+    }
+    
+});
+
+
+//비동기로 회원 전체 조회 함수 선언 및 정의
+function selectMemberList(){
+    const tbody = document.getElementById("tbody");
+
+    //tbody 이전 내용 삭제 
+    tbody.innerHTML = "";
+
+    $.ajax({
+        url : "/selectMemberList",
+        dataType : "JSON", //응답 데이터의 형식이 JSON이다. -> 자동으로 JS 객체로 반환
+        success : memberList => {
+            console.log(memberList);
+
+            for(let member of memberList){
+
+                const tr = document.createElement("tr");
+                // 탈퇴한 회원인 경우 
+                if(member.memberDeleteFlag === 'Y'){
+                    tr.classList.add("secession")
+                }
+
+                //회원번호
+                const th = document.createElement("th");
+                th.innerText = member.memberNo;
+
+                const td1 = document.createElement("td");
+                td1.innerText = member.memberEmail;
+
+                const td2 = document.createElement("td");
+                td2.innerText = member.memberDeleteFlag;
+
+                // 행 + 데이터
+                tr.append(th, td1, td2);
+
+                // 데이블 + 행
+                tbody.append(tr);
+
+            } // for 끝
+
+            //회원 수 출력 
+            document.getElementById("memberCount").innerText = memberList.length +"명";
+        },
+        error : ()=>{
+            console.log("에러");
+        }
+    });
+}
