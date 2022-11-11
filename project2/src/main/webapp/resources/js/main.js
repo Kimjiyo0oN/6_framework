@@ -3,35 +3,38 @@ console.log("main.js")
 //아이디 저장 체크박스가 체크 되었을 때에 대한 동작
 const saveId = document.getElementById("saveId");
 
-// radio, checkbox 값이 변할 때 발생하는 이벤트 : change
-saveId.addEventListener("change", function(){
-    // change는 체크가 되거나, 해제될 때 이벤트 발생
-    // -> 체크되었는 지 별도 검사 필요 
+if(saveId != null){
+    // radio, checkbox 값이 변할 때 발생하는 이벤트 : change
+    saveId.addEventListener("change", function(){
+        // change는 체크가 되거나, 해제될 때 이벤트 발생
+        // -> 체크되었는 지 별도 검사 필요 
 
-    // 이벤트 핸들러 내부 this : 이벤트가 발생한 요소(아이디 저장 checkbox)
-    console.log(this.checked);
-    
-    // 체크박스.checked : 체크 O == true. 체크 X == false 반환 
+        // 이벤트 핸들러 내부 this : 이벤트가 발생한 요소(아이디 저장 checkbox)
+        console.log(this.checked);
+        
+        // 체크박스.checked : 체크 O == true. 체크 X == false 반환 
 
-    if(this.checked){
-        // 체크된 경우
-        const str = "개인 정보 보호를 위해 개인 PC에서의 사용을 권장합니다."
-                + "개인 PC가 아닌 경우 취소를 눌러주세요";
+        if(this.checked){
+            // 체크된 경우
+            const str = "개인 정보 보호를 위해 개인 PC에서의 사용을 권장합니다."
+                    + "개인 PC가 아닌 경우 취소를 눌러주세요";
 
-        //window.confirm("내용") : 확인 == true , 취소 == false 반환
+            //window.confirm("내용") : 확인 == true , 취소 == false 반환
 
-        // 체크박스.checked = true || false
-        // -> true 대입 : 체크 O
-        // -> false 대입 : 체크 X
-        if(!confirm(str)){ //취소를 누른 경우
+            // 체크박스.checked = true || false
+            // -> true 대입 : 체크 O
+            // -> false 대입 : 체크 X
+            if(!confirm(str)){ //취소를 누른 경우
 
-            //체크 해제 
-            this.checked = false;
+                //체크 해제 
+                this.checked = false;
+            }
+
         }
 
-    }
+    });
+}
 
-});
 
 //로그인 유효성 검사
 // 로그인 form 태그 sumbit 이벤트 취소하기
@@ -199,7 +202,20 @@ function selectMemberList(){
             document.getElementById("memberCount").innerText = memberList.length +"명";
         },
         error : ()=>{
-            console.log("에러");
+            console.log("회원 목록 조회 에러");
         }
     });
+
 }
+
+// HTML 문서가 모두 읽어진 후 
+// selectMemberList() 바로 호출 
+// 그 다음 10초 마다 호출
+
+//HTML 로딩이 끝났을 때 
+document.addEventListener("DOMContentLoaded" , () => {
+    selectMemberList();
+
+    //setInterval(함수, 지연시간(ms))
+    setInterval(selectMemberList, 10000);
+});

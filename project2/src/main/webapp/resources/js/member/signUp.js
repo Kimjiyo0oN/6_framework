@@ -279,13 +279,13 @@ memberNickname.addEventListener("input",function(){
                     nickMessage.classList.add("confirm");
                     nickMessage.classList.remove("error");
 
-                    checkObj.nickMessage = true;
+                    checkObj.memberNickname = true;
                 }else{ //중복임
                     nickMessage.innerText = "이미 사용중인 닉네임입니다.";
                     nickMessage.classList.add("error");
                     nickMessage.classList.remove("confirm");
 
-                    checkObj.nickMessage = false;
+                    checkObj.memberNickname = false;
                 }
             },
             error : () => {
