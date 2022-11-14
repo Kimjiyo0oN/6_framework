@@ -161,8 +161,13 @@
                         <c:otherwise>
                             <article class="login-area">
                                 <%-- 회원 프로필 이미지 --%>
-                                <a href="#">
-                                    <img id="member-progile" src="/resources/images/user.png">
+                                <a href="/member/myPage/profile">
+                                    <c:if test="${empty loginMember.profileImage}">
+                                        <img id="member-progile" src="/resources/images/user.png">
+                                    </c:if>
+                                    <c:if test="${not empty loginMember.profileImage}">
+                                        <img id="member-progile" src="${loginMember.profileImage}">
+                                    </c:if> 
                                 </a>
 
                                 <%-- 회원 정보 + 로그아웃 버튼 --%>

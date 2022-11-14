@@ -14,7 +14,8 @@ const checkObj ={
     "memberPw"        : false,
     "memberPwConfirm" : false,
     "memberNickname"  : false,
-    "memberTel"       : false
+    "memberTel"       : false,
+    "authKey": false
 };
 
 
@@ -49,6 +50,7 @@ document.getElementById("signUp-frm").addEventListener("submit",function(event){
             case "memberPwConfirm"    : str = "확인 비밀번호가 유효하지 않습니다."; break;
             case "memberTel"    : str = "전화번호가 유효하지 않습니다."; break;
             case "memberNickname"    : str = "닉네임이 유효하지 않습니다."; break;
+            case "authKey"       : str = "인증이 완료되지 않았습니다."; break;
             
             }
 
@@ -353,3 +355,107 @@ memberTel.addEventListener("input",function(){
 });
 
 
+//----------------------------------------------------------------------------------------------
+// 이메일 인증코드 발송 / 확인
+// 인증번호 발송
+const sendAuthKeyBtn = document.getElementById("sendAuthKeyBtn");
+const authKeyMessage = document.getElementById("authKeyMessage");
+let authTimer;  //타이머 
+let authMin = 4;
+let authSec = 59;
+
+
+sendAuthKeyBtn.addEventListener("click", function(){
+    authMin = 4;
+    authSec = 59;
+
+    checkObj.authKey = false;
+
+    if(checkObj.memberEmail){ // 중복이 아닌 이메일인 경우(이메일이 유효할 때만)
+        $.ajax({
+            url : "/sendEmail/signUp",
+            data : {"email": memberEmail.value},  //이메일 보내지면 1 안보내지면 0 
+            success : (result) => {
+                if(result > 0){
+                    console.log("인증 번호가 발송되었습니다.")
+                }else{
+                    console.log("인증번호 발송 실패")
+                }
+            }, error : () => {
+                console.log("이메일 발송 중 에러 발생");
+            }
+        })
+
+        alert("인증번호가 발송 되었습니다.");
+
+        
+        authKeyMessage.innerText = "05:00";
+        authKeyMessage.classList.remove("confirm"); //혹시 글자 초록색일까봐 제거
+
+        authTimer = window.setInterval(()=>{  //인터벌 시간마다 기능 수행
+
+            authKeyMessage.innerText = "0" + authMin + ":" + (authSec<10 ? "0" + authSec : authSec);
+            
+            // 남은 시간이 0분 0초인 경우
+            if(authMin == 0 && authSec == 0){  //시간이 계속 줄어들다가 0분0초가 나왔을 때
+                checkObj.authKey = false;
+                clearInterval(authTimer);
+                return;
+            }
+
+            // 0초인 경우
+            if(authSec == 0){   //0분 0초가 아니고 3분 0초 일대 2분 60초로
+                authSec = 60;
+                authMin--;
+            }
+
+
+            authSec--; // 1초 감소
+
+        }, 1000)
+
+    } else{
+        alert("중복되지 않은 이메일을 작성해주세요.");
+        memberEmail.focus();
+    }
+
+});
+
+
+// 인증 확인
+const authKey = document.getElementById("authKey");
+const checkAuthKeyBtn = document.getElementById("checkAuthKeyBtn");
+
+checkAuthKeyBtn.addEventListener("click", function(){
+
+    if(authMin > 0 || authSec > 0){ // 시간 제한이 지나지 않은 경우에만 인증번호 검사 진행
+
+        $.ajax({
+            url : "/sendEmail/checkAuthKey",
+            data : {"inputKey": authKey.value},
+            success : (result) => {
+
+                if(result > 0){
+                    clearInterval(authTimer);
+                    authKeyMessage.innerText = "인증되었습니다.";
+                    authKeyMessage.classList.add("confirm");
+                    checkObj.authKey = true;
+
+                } else{
+                    alert("인증번호가 일치하지 않습니다.")
+                    checkObj.authKey = false;
+                }
+            }, 
+            
+            error : () => {
+                console.log("인증코드 확인 오류");
+            }
+            
+        })
+
+    } else{
+        alert("인증 시간이 만료되었습니다. 다시 시도해주세요.")
+    }
+
+
+});

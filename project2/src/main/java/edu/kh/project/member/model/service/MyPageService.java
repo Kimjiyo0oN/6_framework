@@ -2,6 +2,8 @@ package edu.kh.project.member.model.service;
 
 import java.util.Map;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import edu.kh.project.member.model.vo.Member;
 
 // 설계 + 유지보수 + AOP
@@ -23,5 +25,8 @@ public interface MyPageService {
 
 
 	int memberDelete(int memberNo, String memberPw);
+
+
+	int updateProfile(String webPath, String filePath, MultipartFile profileImage, Member loginMember) throws Exception;
 	
 }
