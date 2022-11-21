@@ -53,4 +53,33 @@ public class BoardDAO {
 									//  namespace.id            , 파라미터,   rowBounds
 									//                          , 파라미터 없을 때 NULL 대입
 	}
+	
+	/** 게시글 상세 조회 + 이미지 목록 조회 + 댓글 목록 조회
+	 * @param boardNo
+	 * @return board
+	 */
+	public Board selectBoardDetail(int boardNo) {
+		return sqlSession.selectOne("boardMapper.selectBoardDetail", boardNo);
+	}
+
+	public int updateReadCount(int boardNo) {
+		// TODO Auto-generated method stub
+		System.out.println(boardNo);
+		return sqlSession.update("boardMapper.updateReadCount", boardNo);
+	}
+
+	public int boardLikeCheck(Map<String, Object> map) {
+		// TODO Auto-generated method stub
+		return sqlSession.selectOne("boardMapper.boardLikeCheck", map);
+	}
+
+	public int boardLikeUp(Map<String, Object> paramMap) {
+		
+		return sqlSession.insert("boardMapper.boardLikeUp", paramMap);
+	}
+
+	public int boardLikeDown(Map<String, Object> paramMap) {
+		// TODO Auto-generated method stub
+		return sqlSession.delete("boardMapper.boardLikeDown", paramMap);
+	}
 }

@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.kh.project.board.model.dao.BoardDAO;
 import edu.kh.project.board.model.vo.Board;
@@ -45,4 +46,39 @@ public class BoardServiceImpl implements BoardService{
 		
 		return map;
 	}
+	
+	// 게시글 상세 조회 + 이미지 목록 조회 + 댓글 목록 조회
+		@Override
+		public Board selectBoardDetail(int boardNo) {
+
+			return dao.selectBoardDetail(boardNo);
+		}
+		
+		@Transactional(rollbackFor = Exception.class) //모든 예외 발생시 롤백
+		@Override
+		public int updateReadCount(int boardNo) {
+			
+			return dao.updateReadCount(boardNo);
+		}
+
+		@Override
+		public int boardLikeCheck(Map<String, Object> map) {
+			
+			return dao.boardLikeCheck(map);
+		}
+		
+		@Transactional(rollbackFor = Exception.class) //모든 예외 발생시 롤백
+		@Override
+		public int boardLikeUp(Map<String, Object> paramMap) {
+			
+			return dao.boardLikeUp(paramMap);
+		}
+
+		
+		@Transactional(rollbackFor = Exception.class) //모든 예외 발생시 롤백
+		@Override
+		public int boardLikeDown(Map<String, Object> paramMap) {
+			
+			return dao.boardLikeDown(paramMap);
+		}
 }
