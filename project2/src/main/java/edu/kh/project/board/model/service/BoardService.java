@@ -7,6 +7,7 @@ import java.util.Map;
 import org.springframework.web.multipart.MultipartFile;
 
 import edu.kh.project.board.model.vo.Board;
+import edu.kh.project.board.model.vo.BoardImage;
 
 public interface BoardService {
 
@@ -40,6 +41,10 @@ public interface BoardService {
 	int getBoardDelete(int boardNo);
 
 	int boardWrite(Board board, List<MultipartFile> imageList, String webpath, String folderPath) throws IOException;
+
+	Board selectBoardUpdate(int boardNo);
+
+	List<BoardImage> selectBoardImgUpdate(int boardNo);
 	
 	
 

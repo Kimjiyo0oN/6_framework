@@ -170,6 +170,8 @@
         const memberNo = "${loginMember.memberNo}"; //EL은 NULL일 때 빈칸
 
         const boardNo ="${boardNo}";
+
+        const boardCode ="${boardCode}";
     </script>
     
     <%-- jQuery CDN 방식으로 추가 --%>

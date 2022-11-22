@@ -89,3 +89,15 @@ deleteBtn.addEventListener("click",()=>{
     }
 
 });
+
+
+//글 수정 버튼 
+(()=>{
+    const updateBtn = document.getElementById("updateBtn");
+
+    if(updateBtn != null){ //버튼이 존쟈할 때만
+        updateBtn.addEventListener("click",()=>{
+            location.href = "/update/"+boardCode +"/" +boardNo;
+        })
+    }
+})();

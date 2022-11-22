@@ -132,7 +132,7 @@ public class BoardServiceImpl implements BoardService{
 						
 						// BoardImage 값 세팅
 						img.setImagePath(webpath);
-						
+					
 						//원본파일명 -> 변경된 파일명
 						String reName = Util.fileRename(imageList.get(i).getOriginalFilename());
 						img.setImageReName(reName);
@@ -169,5 +169,18 @@ public class BoardServiceImpl implements BoardService{
 			}
 			
 			return boardNo;
+		}
+
+		@Override
+		public Board selectBoardUpdate(int boardNo) {
+			Board board = dao.selectBoardUpdate(boardNo);
+			return board;
+		}
+
+		@Override
+		public List<BoardImage> selectBoardImgUpdate(int boardNo) {
+			List<BoardImage> imageList = dao.selectBoardImgUpdate(boardNo);
+			
+			return imageList;
 		}
 }

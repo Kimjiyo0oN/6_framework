@@ -3,6 +3,7 @@ package edu.kh.project.board.controller;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -28,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import edu.kh.project.board.model.vo.Board;
+import edu.kh.project.board.model.vo.BoardImage;
 import edu.kh.project.member.model.vo.Member;
 import edu.kh.project.board.model.service.BoardService;
 
@@ -290,5 +292,30 @@ public class BoardController {
 			return "redirect:" + path;
 		}
 		
+		//게시글 수정 이동
+		@GetMapping("/update/{boardCode}/{boardNo}")
+		public String boardUpdate(
+					@PathVariable("boardCode") int boardCode,
+					@PathVariable("boardNo") int boardNo,
+					Model model) {
+			
+			Board board = service.selectBoardUpdate(boardNo);
+			List<BoardImage> imageList = service.selectBoardImgUpdate(boardNo);
+			
+			Map<String, Object> imageMap = new HashMap<String, Object>();
+			
+			System.out.println(board);
+			
+			for(int i=0; i<imageList.size();i++) {
+				System.out.println(imageList.get(i).getImagePath()+imageList.get(i).getImageReName());
+				imageMap.put("img"+imageList.get(i).getImageOrder(), imageList.get(i).getImagePath()+imageList.get(i).getImageReName());
+	
+			}
+			
+			model.addAttribute("imageMap", imageMap);
+			model.addAttribute("board", board);
+			
+			return "board/boardUpdate";
+		}
 		
 }

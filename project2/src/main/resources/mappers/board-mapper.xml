@@ -233,4 +233,15 @@
 	</foreach>
 	
   </insert>
+  
+  <select id="selectBoardUpdate" resultMap="board_rm">
+  SELECT * FROM BOARD b
+	WHERE BOARD_NO = #{boardNo}
+  </select>
+  
+  <select id="selectBoardImgUpdate" resultMap ="boardImage_rm">
+	SELECT * FROM BOARD_IMG bi 
+	WHERE BOARD_NO = #{boardNo}
+	ORDER BY IMG_ORDER
+  </select>
 </mapper>

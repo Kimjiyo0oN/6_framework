@@ -7,6 +7,7 @@ import org.apache.ibatis.session.RowBounds;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.multipart.MultipartFile;
 
 import edu.kh.project.board.model.vo.Board;
 import edu.kh.project.board.model.vo.BoardImage;
@@ -109,5 +110,13 @@ public class BoardDAO {
 	public int insertBoardImageList(List<BoardImage> boardImageList) {
 
 		return sqlSession.insert("boardMapper.insertBoardImageList", boardImageList);
+	}
+
+	public Board selectBoardUpdate(int boardNo) {
+		return sqlSession.selectOne("boardMapper.selectBoardUpdate", boardNo);
+	}
+
+	public List<BoardImage> selectBoardImgUpdate(int boardNo) {		
+		return sqlSession.selectList("boardMapper.selectBoardImgUpdate", boardNo);
 	}
 }
