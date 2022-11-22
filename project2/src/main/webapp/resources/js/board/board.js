@@ -73,3 +73,19 @@ boardLike.addEventListener("click", e=>{
 
     }
 });
+
+//게시글 삭제
+const deleteBtn = document.getElementById("deleteBtn");
+
+deleteBtn.addEventListener("click",()=>{
+    if(confirm("정말 삭제 하시겠습니까??")){
+
+        //와 그러면 a태그를 click하면 클릭 이벤트 발생시켜서 이걸로 하면 되는 거였넹??ㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎ
+
+        // /board/{boardCode}/{boardNo}/delete GET방식
+        location.href = location.pathname + "/delete";//(a태그로 href 보내는 거랑 똑같따!!!!!ㅎㅎㅎ)
+        //              /board/1/1980/delete
+
+    }
+
+});

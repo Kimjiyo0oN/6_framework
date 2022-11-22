@@ -1,7 +1,11 @@
 package edu.kh.project.board.model.service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.web.multipart.MultipartFile;
+
 import edu.kh.project.board.model.vo.Board;
 
 public interface BoardService {
@@ -32,6 +36,10 @@ public interface BoardService {
 	int boardLikeUp(Map<String, Object> paramMap);
 
 	int boardLikeDown(Map<String, Object> paramMap);
+
+	int getBoardDelete(int boardNo);
+
+	int boardWrite(Board board, List<MultipartFile> imageList, String webpath, String folderPath) throws IOException;
 	
 	
 
