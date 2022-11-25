@@ -10,7 +10,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${boardName}</title>
+    <title>${boardName} 수정</title>
 
     <link rel="stylesheet" href="/resources/css/main-style.css">
 
@@ -23,7 +23,8 @@
     <main>
         <jsp:include page="/WEB-INF/views/common/header.jsp"/>
 
-        <form action="/update/${boardCode}/${boardNo}" method="POST" enctype="multipart/form-data" class="board-update" id="boardUpdateForm" onsubmit="return updateValidate()">  
+        <%-- 상대경로 --%>
+        <form action="update" method="POST" enctype="multipart/form-data" class="board-update" id="boardUpdateForm" onsubmit="return updateValidate()">  
 
 
             <!-- 제목 -->
@@ -31,20 +32,41 @@
                 <input type="text" name="boardTitle" placeholder="제목" value="${board.boardTitle}">
             </h1>
 
+             <%-- imageList에 존재하는 이미지 순서에 따라 변수 선언 --%>
+             <c:forEach items="${board.imageList}" var="img">
+                <c:choose>
+                    <c:when test="${img.imageOrder ==0}">
+                        <c:set var="thumbnail" value="${img.imagePath}${img.imageReName}"></c:set>
+                    </c:when>
+                    <c:when test="${img.imageOrder ==1}">
+                        <c:set var="img1" value="${img.imagePath}${img.imageReName}"></c:set>
+                    </c:when>
+                    <c:when test="${img.imageOrder ==2}">
+                        <c:set var="img2" value="${img.imagePath}${img.imageReName}"></c:set>
+                    </c:when>
+                    <c:when test="${img.imageOrder ==3}">
+                        <c:set var="img3" value="${img.imagePath}${img.imageReName}"></c:set>
+                    </c:when>
+                    <c:when test="${img.imageOrder ==4}">
+                        <c:set var="img4" value="${img.imagePath}${img.imageReName}"></c:set>
+                    </c:when>
+                </c:choose>
+             </c:forEach>   
 
             <!-- 썸네일 영역 -->
             <h5>썸네일</h5>
             <div class="img-box">
                 <div class="boardImg thumbnail">
                     <label for="img0">
-                        <c:choose>
+                        <img class="preview" src="${thumbnail}">
+                        <%-- <c:choose>
                             <c:when test="${not empty imageMap.img0}">
                                 <img class="preview" src="${imageMap.img0}">
                             </c:when>
                             <c:otherwise>
                                 <img class="preview" src="">
                             </c:otherwise>
-                        </c:choose> 
+                        </c:choose>  --%>
                     </label>
                     <input type="file" name="images" class="inputImage" id="img0" accept="image/*">
                     <span class="delete-image">&times;</span>
@@ -58,14 +80,15 @@
 
                 <div class="boardImg">
                     <label for="img1">
-                        <c:choose>
+                        <img class="preview" src="${img1}">
+                        <%-- <c:choose>
                             <c:when test="${not empty imageMap.img1}">
                                 <img class="preview" src="${imageMap.img1}">
                             </c:when>
                             <c:otherwise>
                                 <img class="preview" src="">
                             </c:otherwise>
-                        </c:choose> 
+                        </c:choose>  --%>
                     </label>
                     <input type="file" name="images" class="inputImage" id="img1" accept="image/*">
                     <span class="delete-image">&times;</span>
@@ -73,14 +96,15 @@
 
                 <div class="boardImg">
                     <label for="img2">
-                        <c:choose>
+                        <img class="preview" src="${img2}">
+                        <%-- <c:choose>
                             <c:when test="${not empty imageMap.img2}">
                                 <img class="preview" src="${imageMap.img2}">
                             </c:when>
                             <c:otherwise>
                                 <img class="preview" src="">
                             </c:otherwise>
-                        </c:choose>      
+                        </c:choose>  --%>     
                     </label>
                     <input type="file" name="images" class="inputImage" id="img2" accept="image/*">
                     <span class="delete-image">&times;</span>
@@ -88,14 +112,15 @@
 
                 <div class="boardImg">
                     <label for="img3">
-                        <c:choose>
+                        <img class="preview" src="${img3}">
+                        <%-- <c:choose>
                             <c:when test="${not empty imageMap.img3}">
                                 <img class="preview" src="${imageMap.img3}">
                             </c:when>
                             <c:otherwise>
                                 <img class="preview" src="">
                             </c:otherwise>
-                        </c:choose> 
+                        </c:choose>  --%>
                     </label>
                     <input type="file" name="images" class="inputImage" id="img3" accept="image/*">
                     <span class="delete-image">&times;</span>
@@ -103,14 +128,15 @@
 
                 <div class="boardImg">
                     <label for="img4">
-                        <c:choose>
+                        <img class="preview" src="${img4}">
+                        <%-- <c:choose>
                             <c:when test="${not empty imageMap.img4}">
                                 <img class="preview" src="${imageMap.img4}">
                             </c:when>
                             <c:otherwise>
                                 <img class="preview" src="">
                             </c:otherwise>
-                        </c:choose> 
+                        </c:choose>  --%>
                     </label>
                     <input type="file" name="images" class="inputImage" id="img4" accept="image/*">
                     <span class="delete-image">&times;</span>
@@ -128,7 +154,11 @@
                 <button type="submit" id="updatebtn">수정</button>
             </div>
 
-            
+            <%-- 삭제될 이미지 순서를 저장한 input태그 --%>
+            <input type="hidden" name="deleteList" id="deleteList" value="">
+
+            <%-- 수정 완료 후 리다이렉트 시 사용 예정 --%>
+            <input type="hidden" name="cp" id="cp" value="${param.cp}">
         </form>
 
     </main>

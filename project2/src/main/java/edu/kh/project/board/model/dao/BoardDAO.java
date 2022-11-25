@@ -119,4 +119,59 @@ public class BoardDAO {
 	public List<BoardImage> selectBoardImgUpdate(int boardNo) {		
 		return sqlSession.selectList("boardMapper.selectBoardImgUpdate", boardNo);
 	}
+
+	public int boardUpdate(Board board) {
+		
+		return sqlSession.update("boardMapper.boardUpdate", board);
+	}
+
+	/** 게시글 이미지 삭제
+	 * @param condition
+	 * @return result
+	 */
+	public int boardImageDelete(String condition) {
+		// TODO Auto-generated method stub
+		return sqlSession.delete("boardMapper.boardImageDelete", condition);
+	}
+
+	/** 이미지 수정
+	 * @param img
+	 * @return
+	 */
+	public int boardImageUpdate(BoardImage img) {
+		
+		return sqlSession.update("boardMapper.boardImageUpdate", img);
+	}
+
+	/** 이미지 삽입
+	 * @param img
+	 * @return
+	 */
+	public int boardImageInsert(BoardImage img) {
+		
+		return sqlSession.insert("boardMapper.boardImageInsert", img);
+	}
+
+	/** 검색 조건이 일치하는 게시글 수 조회
+	 * @param pm
+	 * @return
+	 */
+	public int getListCount(Map<String, Object> pm) {
+	
+		return sqlSession.selectOne("boardMapper.getListCount_search", pm);
+	}
+
+	/** 검색 조건 일치 게시글 목록 조회
+	 * @param pagination
+	 * @param pm
+	 * @return
+	 */
+	public List<Board> selectBoardList(Pagination pagination, Map<String, Object> pm) {
+		
+		int offset = (pagination.getCurrentPage()-1) * pagination.getLimit();
+		
+		RowBounds rowBounds = new RowBounds(offset,pagination.getLimit());
+		
+		return sqlSession.selectList("boardMapper.selectBoardList_search", pm, rowBounds);
+	}
 }

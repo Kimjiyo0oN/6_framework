@@ -30,6 +30,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import edu.kh.project.board.model.vo.Board;
 import edu.kh.project.board.model.vo.BoardImage;
+import edu.kh.project.common.Util;
 import edu.kh.project.member.model.vo.Member;
 import edu.kh.project.board.model.service.BoardService;
 
@@ -54,16 +55,25 @@ public class BoardController {
 	@GetMapping("/board/{boardCode}") //-> @PathVariable("boardCode") int boardCode) -> ${boardCode}로 사용가능
 	public String selectBoardList( @PathVariable("boardCode") int boardCode
 			,Model model,
-			@RequestParam(value="cp" , required = false, defaultValue = "1") int cp) {
+			@RequestParam(value="cp" , required = false, defaultValue = "1") int cp,
+			@RequestParam Map<String, Object> pm) {
 			//게시판 게시글 몇 개씩 정렬할 건지도 필요할때 들고 와야함
 		
 		// Model : 값 전달용 객체
 		// model.addAttribute("k", v) : request scope에 세팅 
 		//								-> forward 시 유지됨
 		
-		Map<String, Object> map = service.selectBoardList(boardCode, cp);
+		if(pm.get("key") == null) { //검색이 아닌 경우
+			Map<String, Object> map = service.selectBoardList(boardCode, cp);
+			model.addAttribute("map",map);  //request scope 세팅
+		}
 		
-		model.addAttribute("map",map);  //request scope 세팅
+		else { //검색인 경우
+			pm.put("boardCode", boardCode); // 게시판 번호를 pm에 추가
+			// pm == {boardCode, key, query,cp}
+			Map<String,Object> map = service.selectBoardList(pm,cp);
+			model.addAttribute("map", map);
+		}
 		
 		return "/board/boardList";
 	}
@@ -292,30 +302,87 @@ public class BoardController {
 			return "redirect:" + path;
 		}
 		
-		//게시글 수정 이동
-		@GetMapping("/update/{boardCode}/{boardNo}")
+		/*
+		 * //게시글 수정 이동
+		 * 
+		 * @GetMapping("/update/{boardCode}/{boardNo}") public String boardUpdate(
+		 * 
+		 * @PathVariable("boardCode") int boardCode,
+		 * 
+		 * @PathVariable("boardNo") int boardNo, Model model) {
+		 * 
+		 * Board board = service.selectBoardUpdate(boardNo); List<BoardImage> imageList
+		 * = service.selectBoardImgUpdate(boardNo);
+		 * 
+		 * Map<String, Object> imageMap = new HashMap<String, Object>();
+		 * 
+		 * System.out.println(board);
+		 * 
+		 * for(int i=0; i<imageList.size();i++) {
+		 * System.out.println(imageList.get(i).getImagePath()+imageList.get(i).
+		 * getImageReName()); imageMap.put("img"+imageList.get(i).getImageOrder(),
+		 * imageList.get(i).getImagePath()+imageList.get(i).getImageReName());
+		 * 
+		 * }
+		 * 
+		 * model.addAttribute("imageMap", imageMap); model.addAttribute("board", board);
+		 * 
+		 * return "board/boardUpdate"; }
+		 */
+		@GetMapping("/board/{boardCode}/{boardNo}/update")
 		public String boardUpdate(
-					@PathVariable("boardCode") int boardCode,
-					@PathVariable("boardNo") int boardNo,
-					Model model) {
+				 @PathVariable("boardCode") int boardCode,
+				 @PathVariable("boardNo") int boardNo,
+				 Model model
+				) {
+			Board board =service.selectBoardDetail(boardNo);
 			
-			Board board = service.selectBoardUpdate(boardNo);
-			List<BoardImage> imageList = service.selectBoardImgUpdate(boardNo);
-			
-			Map<String, Object> imageMap = new HashMap<String, Object>();
-			
-			System.out.println(board);
-			
-			for(int i=0; i<imageList.size();i++) {
-				System.out.println(imageList.get(i).getImagePath()+imageList.get(i).getImageReName());
-				imageMap.put("img"+imageList.get(i).getImageOrder(), imageList.get(i).getImagePath()+imageList.get(i).getImageReName());
-	
-			}
-			
-			model.addAttribute("imageMap", imageMap);
+			//개행문자 처리 해제
+			board.setBoardContent(Util.newLineClear(board.getBoardContent()));
 			model.addAttribute("board", board);
-			
 			return "board/boardUpdate";
 		}
+		
+		//게시글 수정 
+		@PostMapping("/board/{boardCode}/{boardNo}/update")
+		public String boardUpdate(Board board, // boardTitle, baordContent(커멘드 객체) 
+				@PathVariable("boardCode") int boardCode, //게시판 번호
+				 @PathVariable("boardNo") int boardNo, //수정할 게시판 번호
+				 @RequestParam(value = "cp" ,required = false, defaultValue = "1") String cp, //현재페이지 수정 후 상세페이지에서 다시 목록으로 돌아갈때 필요 
+				 @RequestParam(value= "deleteList", required = false) String deleteList, //삭제된 이미지
+				 @RequestParam(value = "images", required = false)List<MultipartFile> imageList, //업로드한 파일 목록
+				 @RequestHeader("referer") String referer, // 이전 요청 주소 
+				 HttpSession session, //서버 파일 저장경로 얻기 용
+				 RedirectAttributes ra
+				) throws Exception{
+			// 1. board 객체에 boardNo 세팅
+			board.setBoardNo(boardNo);
+			
+			// 2. 이미지 저장 경로 얻어오기
+			String webPath = "/resources/images/board/";
+			String folderPath = session.getServletContext().getRealPath(webPath); //진짜 경로 반환 
+			
+			// 3. 게시글 수정 서비스 호출 
+			int result = service.boardUpdate(board,imageList,webPath, folderPath,deleteList);
+			
+			// 4. 서비스 결과에 따른 응답 제어 
+			String path = null;
+			String message =null;
+			
+			if(result > 0 ) {
+				// 상세 조회 : /board/2/2005?cp=2
+				path = "/board/"+ boardCode + "/" + boardNo + "?cp="+cp;
+				message ="게시글이 수정되었습니다.";
+				
+			}else {
+				path = referer;
+				message = "게시글 수정 실패....";
+			}
+			
+			ra.addFlashAttribute("message", message);
+			
+			return "redirect:"+path;
+		}
+		
 		
 }

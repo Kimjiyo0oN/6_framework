@@ -7,6 +7,10 @@ const deleteImage = document.getElementsByClassName("delete-image");
 // == 인덱스 번호를 통해서 하나의 그룹을 지정할 수 있음 
 // inputImage[0] preview[0] deleteImage[0]
 
+// 기존에 존재하다가 삭제된 이미지의 순서를 기록
+const deleteSet = new Set();  //중복 허용 불가 
+
+
 for(let i=0; i < inputImage.length; i++){
     //inputImage[i] 요소의 값이 변했을 때 
     inputImage[i].addEventListener("change",event=>{
@@ -21,6 +25,10 @@ for(let i=0; i < inputImage.length; i++){
                 // e.target == reader
                 // e.target.result == 읽어온 파일 URL
                 preview[i].setAttribute("src",e.target.result);
+
+                //미리보기가 추가됨 == 파일이 추가되었다
+                //== 삭제하면 안된다 == deleteSet에서 해당 순번을 제거
+                deleteSet.delete(i);
 
             }
         }else{ //취소를 누를 경우
@@ -40,6 +48,9 @@ for(let i=0; i < inputImage.length; i++){
 
             // input의 값을 ""으로 만들어서 삭제
             inputImage[i].value ="";
+
+            //deleteSet에 삭제된 이미지의 순서(i)를 추가
+            deleteSet.add(i);
         }
 
     })
@@ -47,7 +58,7 @@ for(let i=0; i < inputImage.length; i++){
 }
 
 
-// 게시글 작성 유효성 검사
+// 게시글 수정 유효성 검사
 function updateValidate(){
     const boardTitle = document.querySelector("[name='boardTitle']");
     const boardContent = document.querySelector("[name='boardContent']");
@@ -65,5 +76,14 @@ function updateValidate(){
         boardContent.focus();
         return false;
     }
+
+    // deleteSet의 값을 "0,1,2"을 형태로 변환하여 
+    //form 태그 내부 input 태그로 추가하여 
+    //같이 제출하게 만들기
+    //Array.from(deleteSet) -> deleteSet을 배열로 변환
+
+    //JS 배열 특징 : 배열을 HTML요소 또는 console에 출력하면 
+                        // 요소,요소,요소 형태의 문자열로 변환
+    document.getElementById("deleteList").value = Array.from(deleteSet);
     return true;
 }

@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import edu.kh.project.board.model.dao.BoardDAO;
+import edu.kh.project.board.model.exception.BoardUpdateException;
 import edu.kh.project.board.model.vo.Board;
 import edu.kh.project.board.model.vo.BoardImage;
 import edu.kh.project.board.model.vo.Pagination;
@@ -182,5 +183,142 @@ public class BoardServiceImpl implements BoardService{
 			List<BoardImage> imageList = dao.selectBoardImgUpdate(boardNo);
 			
 			return imageList;
+		}
+
+		/** 게시글 수정
+		 *
+		 */
+		@Transactional(rollbackFor = Exception.class) //모든 예외 발생시 롤백
+		@Override
+		public int boardUpdate(Board board, List<MultipartFile> imageList, String webPath, String folderPath,
+				String deleteList) throws Exception {
+			
+			// 1. 게시글 부분만 수정
+			// 1) XSS 방지 처리,개행 문자 처리
+			board.setBoardTitle(Util.XSSHandling(board.getBoardTitle()));
+			board.setBoardContent(Util.XSSHandling(board.getBoardContent()));
+			board.setBoardContent(Util.newLineHandling(board.getBoardContent()));
+			
+			// 2) DAO 호출 
+			int result = dao.boardUpdate(board); //제목 내용 게시글번호
+			
+			
+			
+			// 2. 이미지 수정 
+			if(result > 0) { //게시글이 정상적으로 수정된 경우
+				//1) 삭제된 이미지가 있을 경우 삭제 진행
+				if(!deleteList.equals("")) {
+					//deleteList : "1,2,3"
+					
+					// WHERE BOARD_NO = 2007 AND IMG_ORDER IN(1,2,3)
+					String condition = "WHERE BOARD_NO = " + board.getBoardNo()
+							+ " AND IMG_ORDER IN(" + deleteList + ")";
+					
+					//2) DAO 호출 
+					result = dao.boardImageDelete(condition);
+					
+					//result =0; //테스트 용도
+					
+					//3) 삭제 실패 시 
+					if(result == 0) {
+						//강제로 예외를 발생시켜 롤백 수행 
+						throw new BoardUpdateException("이미지 삭제 실패");
+					}
+				} //1) if 끝
+					
+				//2) 분류작업 
+				//2) imageList에서 실제 업로드된 파일을 찾아 분류하는 작업
+				//imageList : 실제 파일이 담겨있는 리스트 
+				//boardImageList : DB에 삽입할 이미지 정보만 담겨있는 리스트
+				// raNameList : 변경된 파일명만 담겨있는 리스트
+				
+				List<BoardImage> boardImageList = new ArrayList<BoardImage>(); 
+				// 01234 리스트가 있으면 024에만 이미지를 넣으면 나머지는 데이터가 없음
+				// 실제로 이미지가 들어가있는 리스트만 저장하는 용도로 만듦
+				List<String> reNameList = new ArrayList<String>();
+				
+				// imageList에 담겨있는 파일 중
+				// 실제로 업로드된 파일만 분류하는 작업 진행
+				
+				for(int i=0; i<imageList.size();i++) {
+					// i번째 파일의 크기가 0보다 크다 == 업로드된 파일이 있다.
+					if(imageList.get(i).getSize() > 0) {
+						// BoardImage 객체 생성
+						BoardImage img = new BoardImage();
+						
+						// BoardImage 값 세팅
+						img.setImagePath(webPath);
+					
+						//원본파일명 -> 변경된 파일명
+						String reName = Util.fileRename(imageList.get(i).getOriginalFilename());
+						img.setImageReName(reName);
+						reNameList.add(reName); //변경파일명 리스트에 추가
+						
+						img.setImageOriginal(imageList.get(i).getOriginalFilename());
+						img.setBoardNo(board.getBoardNo());
+						img.setImageOrder(i); //이미지 순서
+						
+						// boardImageList에 추가 
+						boardImageList.add(img);
+						
+						//새로 업로드된 이미지 정보를 이용해서 DB 정보 수정
+						// -> 새로운 이미지가 기존에 존재했는 데 수정한건지
+						//   없었는데 추가한건지 현재 코드 작성 시점에서는 알수 없다
+						// --> 일단 순서(IMG_ORDER)를 이용해서 수정
+						// --> 만약 BOAD_IMG 테이블에 IMG_ORDER 가 일치하는 행이 없다면 
+						// 수정 실패 == 0 반환 == 기존에 없었다 == 새로운 이미지 
+						//  == INSERT 필요
+						
+						
+						
+						
+						
+						result = dao.boardImageUpdate(img); //일단 업데이트
+						if(result == 0) {
+							result = dao.boardImageInsert(img); // 기존에 이미지 없을 때 삽입(새로운 위치에 이미지 삽입)
+							
+							if(result == 0) { //이미지 삽입 실패
+								throw new BoardUpdateException("이미지 수정/삽입 예외");
+								
+							}
+						}
+					}
+				} //for 끝
+				
+				// 분류 작업 결과물 (boardImageList, reNameList)을 이용해서 
+				// 파일을 서버에 저장
+				if(!boardImageList.isEmpty()) {
+					// 서버에 이미지 저장
+					for(int i =0; i < boardImageList.size(); i++) {
+						int index = boardImageList.get(i).getImageOrder();
+						
+						imageList.get(index).transferTo(new File(folderPath + reNameList.get(i)));
+					}
+				}
+				
+			}
+			
+			return result;
+		}
+
+		@Override
+		public Map<String, Object> selectBoardList(Map<String, Object> pm, int cp) {
+			// 1.검색 조건이 일치하는 전체 게시글 수 조회(단, 삭제 제외)
+			int listCount = dao.getListCount(pm);
+			
+			// 2. 검색 조건 일치 게시글 수 + cp(현재 페이지)이용해서 
+			// 페이징 처리 객체 생성
+			Pagination pagination = new Pagination(listCount,cp); //게시판 게시글 몇개 정렬인지도 매개변수 정해줌
+				 
+			// 3. 페이징 처리객체를 이용해서 게시글 목록 조회
+			List<Board> boardList = dao.selectBoardList(pagination,pm); 
+			
+			Map<String, Object> map = new HashMap<String, Object>();
+			
+			map.put("pagination", pagination);
+			map.put("boardList",boardList);
+			
+			return map;
+
 		}
 }

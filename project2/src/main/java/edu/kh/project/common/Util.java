@@ -39,5 +39,11 @@ public class Util {
 		   return content.replaceAll("(\r\n|\n|\r|\n\r)","<br>");
 	   }
 	   
+	 //개행문자 해제 : \r\n ,\n , \r , \n\r -> <br> 로 변경
+	   public static String newLineClear(String content) {
+		   
+		   return content.replaceAll("<br>","\n");
+	   }
+	   
 	   
 }

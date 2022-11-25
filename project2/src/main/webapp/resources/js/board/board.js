@@ -97,7 +97,8 @@ deleteBtn.addEventListener("click",()=>{
 
     if(updateBtn != null){ //버튼이 존쟈할 때만
         updateBtn.addEventListener("click",()=>{
-            location.href = "/update/"+boardCode +"/" +boardNo;
+            //location.href = "/update/"+boardCode +"/" +boardNo;
+            location.href = location.pathname+"/update"+location.search
         })
     }
 })();
