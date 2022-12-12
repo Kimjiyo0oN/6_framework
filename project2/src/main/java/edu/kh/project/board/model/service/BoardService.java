@@ -49,6 +49,8 @@ public interface BoardService {
 	int boardUpdate(Board board, List<MultipartFile> imageList, String webPath, String folderPath, String deleteList) throws Exception;
 
 	Map<String, Object> selectBoardList(Map<String, Object> pm, int cp);
+
+	List<String> selectImageList();
 	
 	
 

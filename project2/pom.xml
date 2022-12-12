@@ -144,11 +144,30 @@
 		</dependency>
 				
 		<!-- AspectJ -->
+		<!-- AspectJ : AOP 문법 -->
+		<!-- Aspectjrt : 서버 실행 중 AOP 문법 수행-->
 		<dependency>
 			<groupId>org.aspectj</groupId>
 			<artifactId>aspectjrt</artifactId>
 			<version>${org.aspectj-version}</version>
 		</dependency>	
+		
+		
+		<!-- aspectjweaver : AOP 코드 생성용 유틸 -->
+		<!-- https://mvnrepository.com/artifact/org.aspectj/aspectjweaver -->
+		<dependency>
+		    <groupId>org.aspectj</groupId>
+		    <artifactId>aspectjweaver</artifactId>
+		    <version>${org.aspectj-version}</version>
+		    <scope>runtime</scope>
+		</dependency>
+		
+		
+		<dependency>  
+         <groupId>org.lazyluke</groupId>  
+         <artifactId>log4jdbc-remix</artifactId>  
+         <version>0.2.7</version>  
+    </dependency>  
 		
 		<!-- Logging -->
 		<dependency>
@@ -168,30 +187,7 @@
 			<version>${org.slf4j-version}</version>
 			<scope>runtime</scope>
 		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.15</version>
-			<exclusions>
-				<exclusion>
-					<groupId>javax.mail</groupId>
-					<artifactId>mail</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>javax.jms</groupId>
-					<artifactId>jms</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.sun.jdmk</groupId>
-					<artifactId>jmxtools</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.sun.jmx</groupId>
-					<artifactId>jmxri</artifactId>
-				</exclusion>
-			</exclusions>
-			<scope>runtime</scope>
-		</dependency>
+		
 
 		<!-- @Inject -->
 		<dependency>
